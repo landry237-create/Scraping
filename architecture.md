@@ -287,4 +287,127 @@ Phase 4 (5M–10M)             → PostgreSQL Cluster + Redis Cluster + 20+ work
 
 ---
 
-*Horizon Multiservices Guinée — Architecture v1.0 — Conakry 🇬🇳*
+## 🧠 Architecture ML & Scoring
+
+```
+CompanyScorer
+│
+├── Règles métier (80% du score)
+│   ├── Complétude des données (nom, email, secteur...)
+│   ├── Pertinence sectorielle (mots-clés par domaine)
+│   ├── Taille entreprise (indicateurs textuels)
+│   └── Bonus géographique (priorité par pays)
+│
+├── Modèle ML (20% du score - optionnel)
+│   ├── Classification binaire (haut/bas potentiel)
+│   ├── Features : TF-IDF sur description + metadata
+│   └── Entraînement sur données historiques
+│
+└── Output
+    ├── Score 0-10 (float)
+    ├── Tier (HIGH/MEDIUM/LOW)
+    └── Métadonnées (méthode, timestamp)
+```
+
+### Métriques de scoring
+
+| Critère | Poids | Description |
+|---|---|---|
+| Email valide | 25% | Email professionnel vérifié |
+| Secteur cible | 20% | BTP, Logistics, Health... |
+| Pays prioritaire | 15% | DE, CA, AU, FR... |
+| Données complètes | 15% | Nom, téléphone, site web |
+| Taille entreprise | 10% | Indicateurs de scale |
+| Rôle contact | 10% | DRH, Recruteur, Manager |
+| ML bonus | 5% | Prédiction modèle entraîné |
+
+---
+
+## 🔐 Architecture Sécurité
+
+```
+Sécurité Multi-Couches
+│
+├── Authentification
+│   ├── JWT Tokens (sessions utilisateur)
+│   ├── API Keys (intégrations tierces)
+│   └── Rate Limiting (100 req/min/IP)
+│
+├── Autorisation
+│   ├── RBAC (Role-Based Access Control)
+│   ├── Endpoints protégés par dépendances
+│   └── Audit logging (toutes les actions)
+│
+├── Conformité RGPD
+│   ├── Opt-out endpoints (/api/gdpr/unsubscribe)
+│   ├── Data export (/api/gdpr/data-export)
+│   ├── Data deletion (/api/gdpr/data-deletion)
+│   └── Audit trail (journal des actions)
+│
+└── Chiffrement
+    ├── Mots de passe (bcrypt)
+    ├── Données sensibles (cryptography)
+    └── Communications (HTTPS/TLS)
+```
+
+---
+
+## 🧪 Architecture Tests
+
+```
+Tests Pyramide
+│
+├── Tests Unitaires (70%)
+│   ├── Services métier (StatsService, CampaignService)
+│   ├── Utilitaires (EmailValidator, ProxyManager)
+│   ├── Modèles ML (CompanyScorer)
+│   └── API routes (endpoints isolés)
+│
+├── Tests d'Intégration (20%)
+│   ├── Pipeline complet (scrape → clean → validate)
+│   ├── API workflows (auth → action → response)
+│   └── Base de données (migrations, contraintes)
+│
+└── Tests E2E (10%)
+    ├── Interface utilisateur (dashboard)
+    ├── Jobs Celery (scraping asynchrone)
+    └── Exports (format et contenu)
+```
+
+### Outils de test
+
+- **pytest** : Framework principal
+- **pytest-asyncio** : Tests async
+- **pytest-cov** : Couverture de code
+- **httpx** : Client HTTP pour tests API
+- **factory-boy** : Factories de données de test
+
+---
+
+## 📊 Architecture Dashboard
+
+```
+Dashboard Interactif
+│
+├── Frontend Vanilla JS
+│   ├── Chart.js (graphiques)
+│   ├── Fetch API (requêtes temps réel)
+│   ├── DOM manipulation (mises à jour dynamiques)
+│   └── Responsive design (mobile-first)
+│
+├── Données Temps Réel
+│   ├── WebSockets (optionnel pour push)
+│   ├── Polling API (stats/overview)
+│   ├── Cache local (IndexedDB)
+│   └── Gestion d'état (objets JavaScript)
+│
+└── Fonctionnalités
+    ├── KPIs animés (compteurs avec progression)
+    ├── Tables triables (contacts, entreprises)
+    ├── Formulaires (scraping, campagnes)
+    └── Notifications (toast messages)
+```
+
+---
+
+*Horizon Multiservices Guinée — Architecture v2.0 — Conakry 🇬🇳*
