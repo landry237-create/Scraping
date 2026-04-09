@@ -1,0 +1,123 @@
+# ============================================================
+# HORIZON MOBILITY DB — Docker Compose
+# Lance toute la stack : API + PostgreSQL + Redis + Celery + Flower
+# Usage : docker-compose up -d
+# ============================================================
+
+version: '3.9'
+
+services:
+
+  # ── API FastAPI ──────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: horizon_api
+    ports:
+      - "8000:8000"           # API + Dashboard
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://horizon:horizon123@postgres:5432/horizon_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - APP_ENV=production
+    volumes:
+      - ./data:/app/data      # Persistance des données scrappées
+      - ./logs:/app/logs      # Persistance des logs
+    depends_on:
+      postgres:
+        condition: service_healthy  # Attendre que Postgres soit prêt
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - horizon_net
+
+  # ── Worker Celery (scraping + pipeline) ──────────────────────
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: horizon_worker
+    command: celery -A workers.celery_app worker --loglevel=info --concurrency=4
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://horizon:horizon123@postgres:5432/horizon_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - horizon_net
+
+  # ── Flower (monitoring Celery) ────────────────────────────────
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: horizon_flower
+    command: celery -A workers.celery_app flower --port=5555
+    ports:
+      - "5555:5555"           # Interface Flower
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/1
+    depends_on:
+      - redis
+      - worker
+    restart: unless-stopped
+    networks:
+      - horizon_net
+
+  # ── PostgreSQL ────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: horizon_postgres
+    environment:
+      POSTGRES_DB: horizon_db
+      POSTGRES_USER: horizon
+      POSTGRES_PASSWORD: horizon123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # Données persistantes
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql  # SQL init
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U horizon -d horizon_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - horizon_net
+
+  # ── Redis ─────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: horizon_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data     # Persistance Redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - horizon_net
+
+# ── Volumes persistants ───────────────────────────────────────
+volumes:
+  postgres_data:             # Données PostgreSQL
+  redis_data:                # Données Redis
+
+# ── Réseau interne ────────────────────────────────────────────
+networks:
+  horizon_net:
+    driver: bridge           # Réseau bridge isolé
