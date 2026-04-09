@@ -1,0 +1,90 @@
+# ============================================================
+# HORIZON MOBILITY DB — Dépendances Python
+# Générer l'environnement : pip install -r requirements.txt
+# ============================================================
+
+# ── Web Framework & API ─────────────────────────────────────
+fastapi==0.111.0            # Framework API REST haute performance
+uvicorn[standard]==0.29.0   # Serveur ASGI pour FastAPI
+pydantic==2.7.1             # Validation de données & schémas
+pydantic-settings==2.2.1    # Gestion des settings via .env
+
+# ── Base de données ──────────────────────────────────────────
+sqlalchemy==2.0.30          # ORM Python — requêtes SQL type-safe
+alembic==1.13.1             # Migrations de schéma DB
+asyncpg==0.29.0             # Driver PostgreSQL asynchrone
+psycopg2-binary==2.9.9      # Driver PostgreSQL synchrone (fallback)
+aiosqlite==0.20.0           # SQLite async (dev/tests)
+
+# ── Cache & Queue ─────────────────────────────────────────────
+redis==5.0.4                # Client Redis (cache + sessions)
+celery==5.4.0               # Worker de tâches distribuées
+celery[redis]==5.4.0        # Backend Redis pour Celery
+flower==2.0.1               # Interface monitoring Celery
+
+# ── Scraping — Requêtes HTTP ──────────────────────────────────
+httpx==0.27.0               # Client HTTP async moderne
+requests==2.31.0            # Client HTTP sync (compatibilité)
+aiohttp==3.9.5              # Client HTTP async (Scrapy async)
+scrapy==2.11.1              # Framework scraping industriel
+
+# ── Scraping — Navigateur ─────────────────────────────────────
+playwright==1.44.0          # Automatisation navigateur (JS-heavy)
+selenium==4.21.0            # Alternative Playwright (legacy sites)
+fake-useragent==1.5.1       # Rotation User-Agent automatique
+
+# ── Parsing HTML ──────────────────────────────────────────────
+beautifulsoup4==4.12.3      # Parser HTML/XML flexible
+lxml==5.2.1                 # Parser XML/HTML performant
+cssselect==1.2.0            # Sélecteurs CSS pour lxml
+
+# ── Validation des données ────────────────────────────────────
+email-validator==2.1.1      # Validation syntaxe email RFC-5322
+dnspython==2.6.1            # Résolution DNS (validation MX)
+phonenumbers==8.13.37       # Validation & formatting téléphones
+tldextract==5.1.2           # Extraction domaine/TLD d'une URL
+validators==0.28.3          # Validation URL, IP, email génériques
+
+# ── Nettoyage & Traitement ────────────────────────────────────
+pandas==2.2.2               # Manipulation données tabulaires
+numpy==1.26.4               # Calculs numériques (scoring)
+fuzzywuzzy==0.18.0          # Fuzzy matching pour déduplication
+python-Levenshtein==0.25.1  # Accélérateur pour fuzzywuzzy
+unidecode==1.3.8            # Normalisation des caractères Unicode
+ftfy==6.2.0                 # Fix encodages texte cassés
+
+# ── Export ────────────────────────────────────────────────────
+openpyxl==3.1.2             # Écriture fichiers Excel .xlsx
+xlsxwriter==3.2.0           # Alternative Excel avec charts
+python-docx==1.1.2          # Export Word si nécessaire
+
+# ── Utilitaires ───────────────────────────────────────────────
+loguru==0.7.2               # Logging structuré, coloré, rotatif
+python-dotenv==1.0.1        # Chargement variables .env
+click==8.1.7                # CLI — interface ligne de commande
+rich==13.7.1                # Terminal enrichi (progress bars...)
+tenacity==8.3.0             # Retry automatique avec backoff
+schedule==1.2.2             # Scheduling tâches périodiques
+tqdm==4.66.4                # Barres de progression
+ujson==5.10.0               # JSON ultra-rapide
+python-dateutil==2.9.0      # Parsing dates flexibles
+pytz==2024.1                # Gestion fuseaux horaires
+
+# ── Sécurité ──────────────────────────────────────────────────
+python-jose[cryptography]==3.3.0  # JWT tokens pour l'API
+passlib[bcrypt]==1.7.4            # Hashage mots de passe
+cryptography==42.0.7              # Chiffrement données sensibles
+
+# ── Tests ─────────────────────────────────────────────────────
+pytest==8.2.0               # Framework de tests
+pytest-asyncio==0.23.7      # Tests async
+pytest-cov==5.0.0           # Couverture de code
+httpx==0.27.0               # Client HTTP pour tests API
+factory-boy==3.3.0          # Factories pour les tests
+
+# ── Dev Tools ─────────────────────────────────────────────────
+black==24.4.2               # Formateur de code
+isort==5.13.2               # Tri des imports
+flake8==7.0.0               # Linter
+mypy==1.10.0                # Type checking statique
+pre-commit==3.7.1           # Hooks pre-commit Git
